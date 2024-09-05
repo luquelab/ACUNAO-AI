@@ -12,8 +12,10 @@ from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers.string import StrOutputParser
 import os
-from transformers import pipeline
+from transformers import pipeline, AutoProcessor, VisionEncoderDecoderModel, StoppingCriteria, StoppingCriteriaList
 import torch
+from collections import defaultdict
+import re
 
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -66,6 +68,63 @@ def rasterize_paper(
     if return_pil:
         return pillow_images, pdf
     
+class RunningVarTorch: 
+    def __init__(self, L=15, norm=False):
+        self.values = None
+        self.L = L
+        self.norm = norm
+
+    def push(self, x: torch.Tensor):
+        assert x.dim() == 1
+        if self.values is None: 
+            self.values = x[:, None]
+        elif self.values.shape[1] < self.L:
+            self.values = torch.cat((self.values, x[:, None]), 1)
+        else:
+            self.values = torch.cat((self.values[:, 1:], x[:, None]), 1)
+
+    def variance(self):
+        if self.values is None:
+            return
+        if self.norm:
+            return torch.var(self.values, 1) / self.values.shape[1]
+        else:
+            return torch.var(self.values, 1)
+        
+class StoppingCriteriaScores(StoppingCriteria):
+    def __init__(self, threshold: float = 0.015, window_size: int = 200):
+        super().__init__()
+        self.threshold = threshold
+        self.vars = RunningVarTorch(norm=True)
+        self.varvars = RunningVarTorch(L=window_size)
+        self.stop_inds = defaultdict(int)
+        self.stopped = defaultdict(bool)
+        self.size = 0
+        self.window_size = window_size
+
+    @torch.no_grad()
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
+        last_scores = scores[-1]
+        self.vars.push(last_scores.max(1)[0].float().cpu())
+        self.varvars.push(self.vars.variance())
+        self.size += 1
+        if self.size < self.window_size:
+            return False
+
+        varvar = self.varvars.variance()
+        for b in range(len(last_scores)):
+            if varvar[b] < self.threshold:
+                if self.stop_inds[b] > 0 and not self.stopped[b]:
+                    self.stopped[b] = self.stop_inds[b] >= self.size
+                else:
+                    self.stop_inds[b] = int(
+                        min(max(self.size, 1) * 1.15 + 150 + self.window_size, 4095)
+                    )
+            else:
+                self.stop_inds[b] = 0
+                self.stopped[b] = False
+        return all(self.stopped.values()) and len(self.stopped) > 0
+    
     
 class PDFLoader:
     """
@@ -83,6 +142,8 @@ class PDFLoader:
         self.elements = []
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.pipe = pipeline("object-detection", model="microsoft/table-transformer-detection", device=self.device)
+        self.processor_noug = AutoProcessor.from_pretrained("facebook/nougat-small")
+        self.model_noug = VisionEncoderDecoderModel.from_pretrained("facebook/nougat-small")
 
     def load(self):
         images, filepath = rasterize_paper(self.pdf_path, return_pil=True)
@@ -104,96 +165,29 @@ class PDFLoader:
         Extract tables and texts from all images.
         """
         for i, image in enumerate(images):
-            metadata = {"source": str(filepath), "page": i}
-            image = Image.open(image).convert("RGB")
-            results = self.pipe(image)
-            image = np.array(image)
+            pixel_values = self.processor_noug(images=image, return_tensors="pt").pixel_values
+            outputs = self.model_noug.generate(pixel_values.to("cpu"),
+                                min_length=1,
+                                max_length=3584,
+                                bad_words_ids=[[self.processor_noug.tokenizer.unk_token_id]],
+                                return_dict_in_generate=True,
+                                output_scores=True,
+                                stopping_criteria=StoppingCriteriaList([StoppingCriteriaScores()]),)
+            generated = self.processor_noug.batch_decode(outputs[0], skip_special_tokens=True)[0]
+            generated = self.processor_noug.post_process_generation(generated, fix_markdown=False)
+            metadata = {"filepath": filepath, "page_number": i}
+            self.elements.append(Element(type="text", page_content=generated, metadata=metadata))
 
-            boxes = []
-
-            for result in results:
-                if result["label"] == "table" and result["score"] > 0.95:
-                    box = [result["box"]['xmin']-15, result["box"]['ymin']-15, result["box"]['xmax']+15, result["box"]['ymax']+15]
-                    boxes.append(box)
-                    print("boxes appended")
-
-                    im = image[box[1]:box[3], box[0]:box[2]]
-                    print("image cropped")
-
-                    # Preprocess the image for OCR
-                    im = cv2.resize(np.array(im), None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
-                    im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-                    kernel = np.ones((1, 1), np.uint8)
-                    im = cv2.dilate(im, kernel, iterations=1)
-                    im = cv2.erode(im, kernel, iterations=1)
-                    im = cv2.threshold(cv2.medianBlur(im, 3), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-
-                    # Configure and conduct OCR
-                    custom_config = r'--oem 3 --psm 4'
-                    table_txt = pytesseract.image_to_string(im, config=custom_config, lang="eng")
-
-                    # Remove table from image
-                    cv2.rectangle(image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (255,255,255), -1)
-
-                    self.elements.append(Element(type="table", page_content=table_txt, metadata=metadata))
-                    print("tables appended")
-
-            custom_config = r'--oem 3 --psm 1'
-
-            # Convert the image to grayscale
-            final_img = image[200:-200]
-            final_img = cv2.resize(final_img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
-
-            # Preprocess the image for OCR
-            imag = cv2.cvtColor(final_img, cv2.COLOR_BGR2GRAY)
-            kernel = np.ones((1, 1), np.uint8)
-            imag = cv2.dilate(imag, kernel, iterations=1)
-            imag = cv2.erode(imag, kernel, iterations=1)
-            imag = cv2.threshold(cv2.medianBlur(imag, 3), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-            bboxes = self.get_paragraph_bounding_boxes(final_img)
-
-            texts = []
-            custom_config = r"--oem 3 --psm 1"
-            for bbox in bboxes:
-                x, y, w, h = bbox
-                roi = imag[y:h, x:w]
-
-                fin = final_img[y:h, x:w]
-                # Convert to grayscale and apply Otsu's threshold
-                gray = cv2.cvtColor(fin, cv2.COLOR_BGR2GRAY)
-                thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-                # Dilate with a horizontal kernel
-                kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 10))
-                dilate = cv2.dilate(thresh, kernel, iterations=2)
-                # Find contours
-                cnts = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-
-                contours_found = False
-                for c in cnts:
-                    x, y, w, h = cv2.boundingRect(c)
-                    area = cv2.contourArea(c)
-                    if w/h > 2 and area > 10000:
-                        contours_found = True  # Set flag to True if contour meets criteria
-                    else:
-                        pass
-                
-                if contours_found:
-                    # Avoid appending texts from figures i.e. graph axis values
-                    text = pytesseract.image_to_string(roi, config=custom_config, lang="eng").replace("\n", " ")
-                    cleaned = text
-                    cleaned = ''.join(e for e in cleaned if e.isalnum())
-                    if cleaned.isdigit():
-                        pass
-                    else:
-                        texts.append(text)
-                else:
-                    pass
-
-            if texts:
-                texts = "\n".join(texts)
-                self.elements.append(Element(type="text", page_content=texts, metadata=metadata))
-                print("text appended")
+        for ele in self.elements:
+            if ele.type == "text":
+                text = ele.page_content
+                pattern = r'(\\begin{tabular}(.*?)\\end{tabular})'
+                matches = re.findall(pattern, text, re.DOTALL)
+                if matches:
+                    for match in matches:
+                        txt = text.replace(match[0], "")
+                        self.elements.append(Element(type="table", page_content=match[0].strip(), metadata=ele.metadata))
+                        # print(txt)
 
     def summarize_tables(self):
         llm = ChatOllama(model="phi3:medium-128k", temperature=0)
@@ -208,40 +202,6 @@ class PDFLoader:
             if element.type == "table":
                 summary = summarize_chain.invoke({"element": str(element.page_content)})
                 element.page_content = summary
-
-    def get_paragraph_bounding_boxes(self, image):
-        # Perform OCR using Tesseract
-        custom_config = r'--oem 3 --psm 1'
-        data = pytesseract.image_to_data(image, output_type=Output.DICT, config=custom_config)
-        
-        # Get bounding boxes
-        n_boxes = len(data['level'])
-        bounding_boxes = []
-        for i in range(1, n_boxes):
-            (x, y, w, h) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
-            bounding_boxes.append((x, y, x + w, y + h))
-        
-        # Merge overlapping boxes
-        def merge_boxes(boxes):
-            if not boxes:
-                return []
-            
-            boxes = sorted(boxes, key=lambda b: b[1])  # Sort by top coordinate
-            merged_boxes = [boxes[0]]
-            
-            for current in boxes:
-                last = merged_boxes[-1]
-                if current[1] <= last[3]:  # Overlapping boxes
-                    merged_boxes[-1] = (min(last[0], current[0]), min(last[1], current[1]),
-                                        max(last[2], current[2]), max(last[3], current[3]))
-                else:
-                    merged_boxes.append(current)
-            
-            return merged_boxes
-        
-        paragraphs = merge_boxes(bounding_boxes)
-        
-        return paragraphs
 
     def create_overlapping_pages(self, overlap_size=1000):
         num_elements = len(self.elements)
