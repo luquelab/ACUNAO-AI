@@ -164,8 +164,10 @@ set-executionpolicy RemoteSigned
 
 5. **Install dependencies**  
   
-1. Download tesseract exe from https://github.com/UB-Mannheim/tesseract/wiki  
-2. Install this exe in `C:\Program Files (x86)\Tesseract-OCR`   
+  5.1. Download tesseract exe from https://github.com/UB-Mannheim/tesseract/wiki  
+  
+  5.2. Install this exe in `C:\Program Files (x86)\Tesseract-OCR`   
+  
 
   Then: 
 ```bash
@@ -187,7 +189,7 @@ streamlit run src/app.py
   
   7.2. Run the dev Jupyter Notebook:  
   Navigate to the `dev.ipynb` file within the dev folder.   
-  
+
 ## Documentation
 
 ACUNAO's documentation is available as a GitHub-pages website accessible at [add later]. The documentation's source files are located in this repository at https://github.com/luquelab/ACUNAO/tree/main/docs.
