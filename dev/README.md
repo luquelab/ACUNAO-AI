@@ -144,8 +144,8 @@ set-executionpolicy RemoteSigned
 
 5. **Install dependencies**  
   
-1. Download tesseract exe from https://github.com/UB-Mannheim/tesseract/wiki  
-2. Install this exe in `C:\Program Files (x86)\Tesseract-OCR`   
+5.1. Download tesseract exe from https://github.com/UB-Mannheim/tesseract/wiki  
+5.2. Install this exe in `C:\Program Files (x86)\Tesseract-OCR`   
 
   Then: 
 ```bash
@@ -159,7 +159,6 @@ Download Ollama from the following link: https://ollama.com/
 Then open the app, install Ollama, and keep Ollama open.   
 
 7. **You're Now Ready to Use the Jupyter Notebook!**  
-
 
 ## Project History
 
