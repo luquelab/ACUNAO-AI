@@ -10,7 +10,7 @@ def initialize_embeddings_and_db(folder_name):
     chunk_overlap = 1000
 
     # Specify the desktop path and folder name for vector database storage
-    desktop_path = os.path.join(os.path.expanduser("~"), "Documents", "ACUNAO-Data")
+    desktop_path = os.path.join(os.path.expanduser("~"), "Documents", "ACUNAOn-Data")
     vdb_name = "vectordb"
     folder_path = os.path.join(desktop_path, folder_name, vdb_name)
 
