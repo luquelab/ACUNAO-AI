@@ -143,7 +143,7 @@ class DocumentProcessor:
                 logging.info("Skipping already processed file: %s", file_path)
                 return
             
-            else: 
+            elif filename not in metadata or metadata[filename]["modified_at"] != modified_at: 
                 start_time = time.time()
                 t1_start = time.process_time() 
 
@@ -158,6 +158,9 @@ class DocumentProcessor:
 
                 self.add_file_metadata(metadata, filename, database, datenow, timenow, modified_at, clock_time, cpu_time, size, file_extension)
                 self.save_file_metadata(metadata, metadata_file)
+
+            else:
+                return
         
         elif file_extension == ".pdf":
             filename = Path(file_path).name
