@@ -11,7 +11,7 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 import ollama
 
 
-st.set_page_config(page_title="💬 ACUNAO Chatbot", layout="wide")
+st.set_page_config(page_title="💬 ACUNAOn Chatbot", layout="wide")
 
 def open_folder(path):
     """
@@ -39,7 +39,7 @@ def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 
 with st.sidebar:
-    st.title("💬 ACUNAO Chatbot")
+    st.title("💬 ACUNAOn Chatbot")
     st.subheader("Chat with your documents")
     st.markdown(
         """
@@ -51,7 +51,7 @@ with st.sidebar:
 
     # Specify the desktop path and folder name for files storage
     desktop_path = os.path.join(os.path.expanduser("~"), "Documents")
-    folder_name = "ACUNAO-Data"
+    folder_name = "ACUNAOn-Data"
     folder_path = os.path.join(desktop_path, folder_name)
 
     # Create the folder if it doesn't exist
@@ -75,7 +75,7 @@ with st.sidebar:
     if st.button("Update database list"):
         st.session_state.folders = get_folders(folder_path)
 
-    if st.button("Open ACUNAO-Data Folder"):
+    if st.button("Open ACUNAOn-Data Folder"):
         open_folder(folder_path)
 
     st.divider()
@@ -98,14 +98,14 @@ def init_llm():
     except Exception as e:
         print(f"An error occurred: {e}")
 
-st.title("💬 ACUNAO Chatbot")
+st.title("💬 ACUNAOn Chatbot")
 
 st.info(
     """
     **Welcome! How may I assist you today?**  
-    Start by adding supported documents into the ACUNAO-Data folder in your computer's Documents folder or click the 'Open ACUNAO-Data Folder' button in the sidebar. ACUNAO currently supports PDF documents:  
+    Start by adding supported documents into the ACUNAOn-Data folder in your computer's Documents folder or click the 'Open ACUNAOn-Data Folder' button in the sidebar. ACUNAOn currently supports PDF documents:  
 
-    1. Open ACUNAO-Data folder in your computer's Documents folder.  
+    1. Open ACUNAOn-Data folder in your computer's Documents folder.  
     2. Create a new folder with your project name to create a new project.  
     3. Add documents into the folder and your AI assistant is ready to answer your questions!   
     4. Navigate to the terminal or command line and press control + c to stop the assistant.   

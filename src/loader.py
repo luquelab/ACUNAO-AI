@@ -38,7 +38,7 @@ class DocumentEventHandler(FileSystemEventHandler):
         if event.is_directory or not event.src_path.endswith(tuple(self.processor.supported_extensions)) or self.should_ignore(event.src_path):
             return None
 
-        database_index = path_parts.index("ACUNAO-Data")
+        database_index = path_parts.index("ACUNAOn-Data")
         subpath_parts = path_parts[database_index + 1:]
         if subpath_parts and os.path.splitext(subpath_parts[-1])[1]:
             subpath_parts = subpath_parts[:-1]
@@ -68,8 +68,8 @@ class DocumentProcessor:
     A class responsible for processing documents, managing embeddings, and interfacing with a vector database. This class initializes necessary components and sets up a file system observer for monitoring changes in the specified folder path.
 
     Attributes:
-        desktop_path: Path to the ACUNAO-Data folder.
-        folder_name: Name of selected folder within ACUNAO-Data.
+        desktop_path: Path to the ACUNAOn-Data folder.
+        folder_name: Name of selected folder within ACUNAOn-Data.
         folder_path: Path to the folder containing documents to be processed.
         vectordb: Path to the vector database.
         embeddings: Placeholder for document embeddings.
@@ -83,7 +83,7 @@ class DocumentProcessor:
         timezone: Timezone to handle dates.
     """
     def __init__(self):
-        self.desktop_path = os.path.join(os.path.expanduser("~"), "Documents", "ACUNAO-Data")
+        self.desktop_path = os.path.join(os.path.expanduser("~"), "Documents", "ACUNAOn-Data")
         self.folder_name = "project_example" 
         self.folder_path = os.path.join(self.desktop_path, self.folder_name)
         self.vectordb = None
@@ -178,7 +178,7 @@ class DocumentProcessor:
                 logging.info("Skipping already processed file: %s", file_path)
                 return
 
-            else:
+            elif filename not in metadata or metadata[filename]["modified_at"] != modified_at:
                 print("Changes detected in folder. Updating vector database...")
                 self.event_handler.process_start = True
                 start_time = time.time()
@@ -208,6 +208,9 @@ class DocumentProcessor:
                 self.add_file_metadata(metadata, filename, database, datenow, timenow, modified_at, clock_time, cpu_time, size, file_extension)
                 self.save_file_metadata(metadata, metadata_file)
                 self.event_handler.process_end = True
+            
+            else:
+                return
 
     def delete_from_vector_db(self, file_path):
         filename = Path(file_path).name

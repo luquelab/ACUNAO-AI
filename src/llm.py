@@ -75,11 +75,11 @@ class ChatPDFAssistant:
 
     def generate_prompt(self, prompt: str, system_prompt: str) -> str:
         return f"""
-        [INST] <<SYS>>
-        {system_prompt}
-        <</SYS>>
+        <|system|>
+        {system_prompt}<|end|>
 
-        {prompt} [/INST]
+        <|user|>
+        {prompt}<|end|>
         """.strip()
 
     def chat(self, input_text, st_cb):

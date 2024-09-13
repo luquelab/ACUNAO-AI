@@ -6,8 +6,6 @@ from PIL import Image
 from pydantic import BaseModel
 import cv2
 import numpy as np
-import pytesseract
-from pytesseract import Output
 from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers.string import StrOutputParser
@@ -141,7 +139,6 @@ class PDFLoader:
         self.pdf_path = pdf_path
         self.elements = []
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.pipe = pipeline("object-detection", model="microsoft/table-transformer-detection", device=self.device)
         self.processor_noug = AutoProcessor.from_pretrained("facebook/nougat-small")
         self.model_noug = VisionEncoderDecoderModel.from_pretrained("facebook/nougat-small")
 
@@ -165,8 +162,9 @@ class PDFLoader:
         Extract tables and texts from all images.
         """
         for i, image in enumerate(images):
-            pixel_values = self.processor_noug(images=image, return_tensors="pt").pixel_values
-            outputs = self.model_noug.generate(pixel_values.to("cpu"),
+            im = Image.open(image)
+            pixel_values = self.processor_noug(images=im, return_tensors="pt").pixel_values
+            outputs = self.model_noug.generate(pixel_values.to(self.device),
                                 min_length=1,
                                 max_length=3584,
                                 bad_words_ids=[[self.processor_noug.tokenizer.unk_token_id]],
@@ -175,8 +173,9 @@ class PDFLoader:
                                 stopping_criteria=StoppingCriteriaList([StoppingCriteriaScores()]),)
             generated = self.processor_noug.batch_decode(outputs[0], skip_special_tokens=True)[0]
             generated = self.processor_noug.post_process_generation(generated, fix_markdown=False)
-            metadata = {"filepath": filepath, "page_number": i}
+            metadata = {"source": filepath, "page": i}
             self.elements.append(Element(type="text", page_content=generated, metadata=metadata))
+            print("Text appended")
 
         for ele in self.elements:
             if ele.type == "text":
@@ -187,7 +186,8 @@ class PDFLoader:
                     for match in matches:
                         txt = text.replace(match[0], "")
                         self.elements.append(Element(type="table", page_content=match[0].strip(), metadata=ele.metadata))
-                        # print(txt)
+                        ele.page_content = txt
+                        print("Table appended")
 
     def summarize_tables(self):
         llm = ChatOllama(model="phi3:medium-128k", temperature=0)
