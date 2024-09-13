@@ -143,7 +143,7 @@ class DocumentProcessor:
                 logging.info("Skipping already processed file: %s", file_path)
                 return
             
-            elif filename not in metadata or metadata[filename]["modified_at"] != modified_at: 
+            elif filename not in metadata or metadata[filename]["modified_at"] < modified_at: 
                 start_time = time.time()
                 t1_start = time.process_time() 
 
@@ -181,7 +181,7 @@ class DocumentProcessor:
                 logging.info("Skipping already processed file: %s", file_path)
                 return
 
-            elif filename not in metadata or metadata[filename]["modified_at"] != modified_at:
+            elif filename not in metadata or metadata[filename]["modified_at"] < modified_at:
                 print("Changes detected in folder. Updating vector database...")
                 self.event_handler.process_start = True
                 start_time = time.time()
