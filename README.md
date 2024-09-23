@@ -58,13 +58,11 @@ Then open the app, install Ollama, and keep Ollama open.
 
 5. **Run the application**  
 
-  5.1. Run the Streamlit prototype:  
+Run the Streamlit prototype:  
 ```bash
 streamlit run src/app.py
 ```
-  
-  5.2. Run the dev Jupyter Notebook:  
-  Navigate to the `dev.ipynb` file within the dev folder.   
+Note: During first run, you will be prompted to add your email for marketing subscription from Streamlit. You have the option to add your email and press enter, or hit the enter key to skip adding your email to the marketing subscription. 
 
 ### MacOS No Conda  
 
@@ -117,13 +115,11 @@ Then open the app, install Ollama, and keep Ollama open.
 
 7. **Run the application**  
 
-  7.1. Run the Streamlit prototype:  
+Run the Streamlit prototype:  
 ```bash
 streamlit run src/app.py
 ```
-  
-  7.2. Run the dev Jupyter Notebook:  
-  Navigate to the `dev.ipynb` file within the dev folder.   
+Note: During first run, you will be prompted to add your email for marketing subscription from Streamlit. You have the option to add your email and press enter, or hit the enter key to skip adding your email to the marketing subscription. 
 
 ### Windows No Conda  
 
@@ -182,13 +178,11 @@ Then open the app, install Ollama, and keep Ollama open.
 
 7. **Run the application**  
 
-  7.1. Run the Streamlit prototype:  
+Run the Streamlit prototype:  
 ```bash
 streamlit run src/app.py
 ```
-  
-  7.2. Run the dev Jupyter Notebook:  
-  Navigate to the `dev.ipynb` file within the dev folder.   
+Note: During first run, you will be prompted to add your email for marketing subscription from Streamlit. You have the option to add your email and press enter, or hit the enter key to skip adding your email to the marketing subscription.   
 
 ## Documentation
 
