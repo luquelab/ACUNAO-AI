@@ -1,0 +1,12 @@
+{
+    "sample.pdf": {
+        "database": "/Users/miche/Documents/ACUNAO-Data/project_example",
+        "date_added": "2024-08-01",
+        "time_added": "20:18:11.297151-04:00",
+        "modified_at": "2024-08-01T13:53:52",
+        "clock_time": "318.91s",
+        "cpu_time": "182.03s",
+        "size": "19185.334kb",
+        "filetype": ".pdf"
+    }
+}
