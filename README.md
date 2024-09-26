@@ -9,6 +9,7 @@ Due to the rapid growth of AI, especially since the launch of ChatGPT, there has
 
 ## Table of Contents
 
+* [Pre-installation](#pre-installation)
 * [Installation](#installation)
    * [Conda-environment](#conda-environment)
    * [MacOS no conda](#macos-no-conda)
@@ -19,6 +20,16 @@ Due to the rapid growth of AI, especially since the launch of ChatGPT, there has
 * [Maintainers](#maintainers)
     * [Contributors](#contributors)
 * [License](#license)
+
+## Pre-installation
+Do the following for get your computer ready for local LLM inference.  
+
+**Install the LLM**  
+
+Download Ollama from the following link: https://ollama.com/    
+
+Then open the app, install Ollama, and keep Ollama open when using ACUNAO.  
+
 
 ## Installation   
 Follow the proper instructions based on your package manager, environment management system, and operating system. If you use Conda as your environment management system,follow the instructions found in [Conda-environment](#conda-environment). If you use MacOS without Conda, follow the instructions found in [MacOS no conda](#macos-no-conda). If you use Windows without Conda, follow the instructions found in [Windows no conda](#windows-no-conda).  
@@ -50,13 +61,7 @@ conda env create --name venv --file=environment.yml
 conda activate venv
 ```  
 
-4. **Install the LLM**  
-
-Download Ollama from the following link: https://ollama.com/    
-
-Then open the app, install Ollama, and keep Ollama open.   
-
-5. **Run the application**  
+4. **Run the application**  
 
 Run the Streamlit prototype:  
 ```bash
@@ -107,13 +112,7 @@ Then:
 pip install -r requirements.txt
 ```  
 
-6. **Install the LLM**  
-
-Download Ollama from the following link: https://ollama.com/    
-
-Then open the app, install Ollama, and keep Ollama open.   
-
-7. **Run the application**  
+6. **Run the application**  
 
 Run the Streamlit prototype:  
 ```bash
@@ -170,19 +169,14 @@ set-executionpolicy RemoteSigned
 pip install -r requirements.txt
 ```
 
-6. **Install the LLM**  
-
-Download Ollama from the following link: https://ollama.com/    
-
-Then open the app, install Ollama, and keep Ollama open.   
-
-7. **Run the application**  
+6. **Run the application**  
 
 Run the Streamlit prototype:  
 ```bash
 streamlit run src/app.py
 ```
-Note: During first run, you will be prompted to add your email for marketing subscription from Streamlit. You have the option to add your email and press enter, or hit the enter key to skip adding your email to the marketing subscription.   
+Note: During first run, you will be prompted to add your email for marketing subscription from Streamlit. You have the option to add your email and press enter, or hit the enter key to skip adding your email to the marketing subscription. 
+
 
 ## Documentation
 
