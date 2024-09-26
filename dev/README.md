@@ -7,6 +7,7 @@ This folder contains the Jupyter Notebooks used for experimentation and testing 
 
 ## Table of Contents
 
+* [Pre-installation](#pre-installation)
 * [Installation](#installation)  
     * [Conda-environment](#conda-environment)  
     * [MacOS No Conda](#macos-no-conda)  
@@ -14,7 +15,16 @@ This folder contains the Jupyter Notebooks used for experimentation and testing 
 * [Project History](#project-history)  
 * [Maintainers](#maintainers)  
     * [Contributors](#contributors)  
-* [License](#license)  
+* [License](#license)
+
+## Pre-installation
+Do the following for get your computer ready for local LLM inference.  
+
+**Install the LLM**  
+
+Download Ollama from the following link: https://ollama.com/    
+
+Then open the app, install Ollama, and keep Ollama open when using ACUNAO.  
 
 ## Installation   
 Follow the proper instructions based on your package manager, environment management system, and operating system. If you use Conda as your environment management system,follow the instructions found in [Conda-environment](#conda-environment). If you use MacOS without Conda, follow the instructions found in [MacOS no conda](#macos-no-conda). If you use Windows without Conda, follow the instructions found in [Windows no conda](#windows-no-conda).  
@@ -46,13 +56,7 @@ conda env create --name venv --file=environment.yml
 conda activate venv
 ```  
 
-4. **Install the LLM**  
-
-Download Ollama from the following link: https://ollama.com/    
-
-Then open the app, install Ollama, and keep Ollama open.   
-
-5. **You're Now Ready to Use the Jupyter Notebook!**  
+4. **You're Now Ready to Use the Jupyter Notebook!**  
 
 ### MacOS No Conda  
 
@@ -97,13 +101,7 @@ Then:
 pip install -r requirements.txt
 ```  
 
-6. **Install the LLM**  
-
-Download Ollama from the following link: https://ollama.com/    
-
-Then open the app, install Ollama, and keep Ollama open.   
-
-7. **You're Now Ready to Use the Jupyter Notebook!**  
+6. **You're Now Ready to Use the Jupyter Notebook!**  
 
 ### Windows No Conda  
 
@@ -152,13 +150,7 @@ set-executionpolicy RemoteSigned
 pip install -r requirements.txt
 ```
 
-6. **Install the LLM**  
-
-Download Ollama from the following link: https://ollama.com/    
-
-Then open the app, install Ollama, and keep Ollama open.   
-
-7. **You're Now Ready to Use the Jupyter Notebook!**  
+6. **You're Now Ready to Use the Jupyter Notebook!**  
 
 ## Project History
 
