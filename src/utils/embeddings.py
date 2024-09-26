@@ -22,10 +22,10 @@ def initialize_embeddings_and_db(folder_name):
 
     # Copy llm to the ACUNAO-Data folder
     dest_folder_path = os.path.join(desktop_path, "llm")
-    dest_file_path = os.path.join(dest_folder_path, "Phi-3-medium-128k-instruct-Q4_K_M.gguf")
+    dest_file_path = os.path.join(dest_folder_path, "Phi-3-medium-128k-instruct-Q4_K_S.gguf")
     if not os.path.exists(dest_folder_path):
          os.makedirs(dest_folder_path)
-    llm_path = "./data/2_test_data/Phi-3-medium-128k-instruct-Q4_K_M.gguf"
+    llm_path = "./data/2_test_data/Phi-3-medium-128k-instruct-Q4_K_S.gguf"
     if not os.path.isfile(dest_file_path):
         shutil.copy2(llm_path, dest_folder_path)
     llm = dest_file_path

@@ -197,7 +197,7 @@ class PDFLoader:
     def summarize_tables(self):
         # llm = ChatOllama(model="phi3:medium-128k", temperature=0)
         llm = LlamaCpp(
-            model_path = "~/Documents/ACUNAO-Data/llm/Phi-3-medium-128k-instruct-Q4_K_M.gguf",
+            model_path = "~/Documents/ACUNAO-Data/llm/Phi-3-medium-128k-instruct-Q4_K_S.gguf",
             n_gpu_layers = 1, 
             n_batch = 256,
             f16_kv = True,
