@@ -207,6 +207,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
 
             status.update(label="Documents are retrieved!", state="complete", expanded=False)
 
+        response = output
         response = output["answer"]
         def stream_ans():
             for word in response.split(" "):
@@ -214,6 +215,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
                 time.sleep(0.02)
 
         st.write_stream(stream_ans)
+        # st.markdown(response)
         st.button("📋", on_click=on_copy_click, args=(response,))
 
     message = {"role": "assistant", "content": response}

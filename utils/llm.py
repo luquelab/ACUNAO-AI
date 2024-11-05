@@ -3,8 +3,10 @@ from langchain_core.prompts import PromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from utils.embeddings import initialize_embeddings_and_db
-from langchain_community.chat_models import ChatLlamaCpp
 from langchain_chroma import Chroma
+from langchain.retrievers.multi_query import MultiQueryRetriever
+from langchain.retrievers.document_compressors import FlashrankRerank
+from langchain.retrievers import ContextualCompressionRetriever
 
 
 class ChatPDFAssistant:
@@ -15,17 +17,6 @@ class ChatPDFAssistant:
         _, self.client, self.vectordb, self.text_splitter, _ = initialize_embeddings_and_db(db)
 
         self.db = Chroma(client=self.client, collection_name="acunao-db",embedding_function=embeddings)
-
-        # self.llm = ChatLlamaCpp(
-        #     model_path = self.llm_model,
-        #     n_gpu_layers = -1, 
-        #     n_batch = 256,
-        #     f16_kv = True,
-        #     temperature = 0.0,
-        #     n_ctx = 4500,
-        #     streaming=True
-        # )
-
 
         self.DEFAULT_SYSTEM_PROMPT = """
         You are a good, honest project assistant. 
@@ -46,9 +37,19 @@ class ChatPDFAssistant:
 
         self.qa_prompt = PromptTemplate(template=self.template, input_variables=['context', 'input'])
 
+        # Implement Multiquery retriever
+        retriever = MultiQueryRetriever.from_llm(
+                                                retriever=self.db.as_retriever(), llm=llm
+                                            )
+        compressor = FlashrankRerank()
+        compression_retriever = ContextualCompressionRetriever(
+            base_compressor=compressor, base_retriever=retriever
+        )
+
         # Create QA Chain
         combine_docs_chain = create_stuff_documents_chain(llm, self.qa_prompt)
-        self.chain = create_retrieval_chain(self.db.as_retriever(search_type="similarity", search_kwargs={"k": 3}), combine_docs_chain)
+        self.chain = create_retrieval_chain(compression_retriever, combine_docs_chain)
+
 
     def generate_prompt(self, prompt: str, system_prompt: str) -> str:
         return f"""
