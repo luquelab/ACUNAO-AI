@@ -20,9 +20,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 # Comment the following out when making changes locally
-pytesseract.pytesseract.tesseract_cmd = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'tesseract/tesseract'))
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+os.environ["TESSDATA_PREFIX"] = r"C:\Program Files\Tesseract-OCR\tessdata"
 
-os.environ["TESSDATA_PREFIX"] = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'tessdata'))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Element(BaseModel):
