@@ -1,6 +1,8 @@
 
 # ACUNAO AI
 
+Check out the [ACUNAO AI website](https://luquelab.github.io/ACUNAO-AI) for more information about the project.
+
 ## Description
 
 An AI assistant as a domain expert of the lab’s documents that has the ability to answer users’ queries accurately. It assists users with organizing their projects and acts as a 'second brain'.
