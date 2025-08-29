@@ -16,6 +16,7 @@ import json
 from datetime import datetime
 from pytz import timezone
 import os, signal
+import torch
 
 
 st.set_page_config(page_title="💬 ACUNAO AI Chatbot", layout="wide")
@@ -114,17 +115,23 @@ def init_embedding():
 
 @st.cache_resource
 def init_llm():
-    _, _, _, _, llm_model = initialize_embeddings_and_db("project_example")
-    llm = ChatLlamaCpp(
-        model_path = llm_model,
-        n_gpu_layers = -1, 
-        n_batch = 256,
-        f16_kv = True,
-        temperature = 0.0,
-        n_ctx = 5028,
-        streaming=True,
-        max_tokens=1048
-    )
+    if torch.cuda.is_available():
+        _, _, _, _, llm_model = initialize_embeddings_and_db("project_example")
+        llm = ChatLlamaCpp(
+            model_path = llm_model,
+            n_gpu_layers = -1, 
+            temperature = 0.0,
+            n_ctx = 5028,
+            streaming=True,
+        )
+    else:
+        _, _, _, _, llm_model = initialize_embeddings_and_db("project_example")
+        llm = ChatLlamaCpp(
+            model_path = llm_model,
+            temperature = 0.0,
+            n_ctx = 5028,
+            streaming=True,
+        )
     return llm
 
 st.title("💬 ACUNAO AI Chatbot")

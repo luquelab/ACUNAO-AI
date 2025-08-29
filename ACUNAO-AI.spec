@@ -1,9 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
+import sys 
 from PyInstaller.utils.hooks import collect_all
 from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import copy_metadata
 
-datas = [("/opt/miniconda3/envs/venv-acunao-test/lib/python3.10/site-packages/streamlit/runtime", "./streamlit/runtime"), ("/opt/miniconda3/envs/venv-acunao-test/lib/python3.10/site-packages/streamlit/static","./streamlit/static"), ('utils', 'utils'), ('/opt/miniconda3/envs/venv-acunao-test/bin/tesseract', './tesseract/'), ('/opt/miniconda3/envs/venv-acunao-test/share/tessdata', './tessdata/')]
+sys.setrecursionlimit(sys.getrecursionlimit() * 50)
+datas = [("C:\\Users\\Me\\miniconda3\\envs\\venv\\Lib\\site-packages\\streamlit\\runtime", ".\\streamlit\\runtime"), ("C:\\Users\\Me\\miniconda3\\envs\\venv\\Lib\\site-packages\\streamlit\\static",".\\streamlit\\static"), ('utils', 'utils'), ('C:\\Users\\Me\\miniconda3\\envs\\venv\\Library\\bin\\tesseract.exe', '.\\tesseract\\'), ('C:\\Users\\Me\\miniconda3\\envs\\venv\\share\\tessdata', '.\\tessdata\\')]
 datas += collect_data_files("streamlit")
 datas += copy_metadata("streamlit")
 datas += collect_data_files("timm")
@@ -12,8 +14,6 @@ datas += collect_data_files("tesseract", include_py_files=True)
 binaries = []
 hiddenimports = ['chromadb', 'chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2', 'chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction', "opencv-contrib-python", "cv2", "cv2.cv2","docx2pdf", "ggml-metal.metal", "llama_cpp", "timm", "clipboard", "numpy", "numpy.core.multiarray"]
 tmp_ret = collect_all('langchain')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('pydantic')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('scipy')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
