@@ -12,7 +12,7 @@ datas += collect_data_files("timm")
 datas += copy_metadata("timm")
 datas += collect_data_files("tesseract", include_py_files=True)
 binaries = []
-hiddenimports = ['chromadb', 'chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2', 'chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction', "opencv-contrib-python", "cv2", "cv2.cv2","docx2pdf", "ggml-metal.metal", "llama_cpp", "timm", "clipboard", "numpy", "numpy.core.multiarray"]
+hiddenimports = ['regex._regex', 'chromadb', 'chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2', 'chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction', "opencv-contrib-python", "cv2", "cv2.cv2","docx2pdf", "ggml-metal.metal", "llama_cpp", "timm", "clipboard", "numpy", "numpy.core.multiarray"]
 tmp_ret = collect_all('langchain')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('scipy')

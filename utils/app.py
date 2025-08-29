@@ -72,7 +72,10 @@ with st.sidebar:
     st.subheader("Quit app")
     st.markdown("Click button then close browser.")
     if st.button("Quit app"):
-        os.kill(os.getpid(), signal.SIGKILL)
+        if platform.system() == "Windows":
+            os.kill(os.getpid(), signal.SIGTERM)
+        else:
+            os.kill(os.getpid(), signal.SIGKILL)
 
     # Specify the desktop path and folder name for files storage
     desktop_path = os.path.join(os.path.expanduser("~/Documents"))
